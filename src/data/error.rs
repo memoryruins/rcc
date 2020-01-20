@@ -148,6 +148,9 @@ pub enum CppError {
     #[error("expected expression for #if")]
     EmptyExpression,
 
+    #[error("macro name missing")]
+    EmptyDefine,
+
     #[error("#endif without #if")]
     UnexpectedEndIf,
 
