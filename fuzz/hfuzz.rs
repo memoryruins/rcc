@@ -50,7 +50,7 @@ fn main() {
     loop {
         fuzz!(|s: &[u8]| {
             if let Ok(s) = std::str::from_utf8(s) {
-                if !is_exotic_keyword(s) && !too_many_parens(s, 800) {
+                if !is_exotic_keyword(s) && !too_many_parens(s, 100) {
                     rcc::compile(s, "<fuzz test>".into(), false, false, false);
                 }
             }
