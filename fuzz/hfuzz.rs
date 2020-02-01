@@ -3,11 +3,11 @@ extern crate honggfuzz;
 extern crate rcc;
 
 use rcc::data::lex::{Keyword::*, Token};
-use rcc::Lexer;
 use rcc::Locatable;
+use rcc::PreProcessor;
 
-fn lex(s: &str) -> Lexer {
-    Lexer::new("<test-suite>", s.chars(), false)
+fn lex(s: &str) -> PreProcessor {
+    PreProcessor::new("<test-suite>", s.chars(), false)
 }
 
 fn is_exotic_keyword(s: &str) -> bool {
