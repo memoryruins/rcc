@@ -169,6 +169,7 @@ impl Compiler {
         if let Some(condition) = maybe_condition {
             let condition = self.compile_expr(condition, builder)?;
             builder.ins().brz(condition.ir_val, end_body, &[]);
+            self.fallthrough(builder);
         }
 
         if let Some(body) = maybe_body {
@@ -179,6 +180,11 @@ impl Compiler {
         builder.switch_to_block(end_body);
         self.exit_loop(old_saw_loop);
         Ok(())
+    }
+    pub(super) fn fallthrough(&self, builder: &mut FunctionBuilder) {
+        let bb = builder.create_ebb();
+        builder.ins().jump(bb, &[]);
+        builder.switch_to_block(bb);
     }
     fn do_loop(
         &mut self,
@@ -290,6 +296,10 @@ impl Compiler {
             let current = builder.cursor().current_ebb().unwrap();
             switch.set_entry(constexpr, current);
         } else {
+            let existing = switch.entries();
+            if existing.contains_key(&constexpr) {
+                return Err(location.error(SemanticError::DuplicateCase { is_default: false }));
+            }
             let new = builder.create_ebb();
             switch.set_entry(constexpr, new);
             Self::jump_to_block(new, builder);
@@ -314,7 +324,7 @@ impl Compiler {
             }
         };
         if default.is_some() {
-            Err(location.error(SemanticError::MultipleDefaultCase))
+            Err(location.error(SemanticError::DuplicateCase { is_default: true }))
         } else {
             let default_ebb = if builder.is_pristine() {
                 builder.cursor().current_ebb().unwrap()
