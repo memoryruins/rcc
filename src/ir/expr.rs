@@ -217,6 +217,7 @@ impl Compiler {
             InstBuilder::brnz
         };
         branch_func(builder.ins(), left.ir_val, target_ebb, &[left.ir_val]);
+        self.fallthrough(builder);
 
         let right = self.compile_expr(right, builder)?;
         builder.ins().jump(target_ebb, &[right.ir_val]);
